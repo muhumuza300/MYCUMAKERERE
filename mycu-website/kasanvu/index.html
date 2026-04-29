@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kasanvu Malaria Portal · MYCU Makerere</title>
+<link rel="icon" href="logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Manrope:wght@200..700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="data.js"></script>
+<style>
+:root {
+  --red: #C8102E; --red-dark: #a00018;
+  --yellow: #FCDC04; --orange: #E67E22;
+  --green: #1a8a3a;
+  --w: #fff; --w2: #fafafa; --w3: #f0f0f0;
+  --k: #000; --k2: #1a1a1a;
+  --g1: #6e6e6e; --g2: #aaa; --g3: #d4d4d4;
+  --rule: #e5e5e5;
+  --grid: 1280px; --pad: 48px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { background: var(--w); color: var(--k); font-family: 'Manrope', sans-serif; font-size: 14.5px; line-height: 1.55; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+.tnum { font-variant-numeric: tabular-nums; }
+a { color: var(--red); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.topbar { background: var(--k); color: var(--w); padding: 10px var(--pad); font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.08em; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--red); }
+.topbar a { color: var(--yellow); display: flex; align-items: center; gap: 8px; }
+.topbar .right { color: var(--g2); }
+
+header.dh { background: var(--w); border-bottom: 1px solid var(--rule); padding: 20px var(--pad); position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: space-between; }
+.dh-brand { display: flex; align-items: center; gap: 14px; }
+.dh-brand img { width: 46px; height: 46px; object-fit: contain; }
+.dh-brand h1 { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: -0.02em; line-height: 1; }
+.dh-brand h1 span { color: var(--red); }
+.dh-brand p { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--g1); margin-top: 4px; }
+.dh-status { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--g1); display: flex; align-items: center; gap: 8px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+nav.snav { background: var(--w); border-bottom: 1px solid var(--rule); padding: 0 var(--pad); position: sticky; top: 87px; z-index: 999; overflow-x: auto; }
+nav.snav ul { display: flex; list-style: none; max-width: var(--grid); margin: 0 auto; gap: 0; }
+nav.snav a { display: block; padding: 14px 18px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--g1); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.15s; }
+nav.snav a:hover { color: var(--k); text-decoration: none; }
+nav.snav a.active { color: var(--red); border-bottom-color: var(--red); }
+
+section { max-width: var(--grid); margin: 0 auto; padding: 64px var(--pad); }
+section.full { max-width: none; padding: 64px var(--pad); }
+section.dark { background: var(--k); color: var(--w); }
+section.grey { background: var(--w2); }
+
+.sec-num { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--orange); margin-bottom: 12px; font-weight: 500; }
+section.dark .sec-num { color: var(--yellow); }
+.sec-title { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 600; font-size: clamp(28px, 4vw, 44px); line-height: 1.1; letter-spacing: -0.025em; max-width: 24ch; margin-bottom: 16px; }
+section.dark .sec-title { color: var(--w); }
+.sec-title em { font-style: italic; font-weight: 500; color: var(--red); }
+section.dark .sec-title em { color: var(--yellow); }
+.sec-deck { font-size: 16px; line-height: 1.55; color: var(--g1); max-width: 60ch; margin-bottom: 32px; }
+section.dark .sec-deck { color: var(--g2); }
+
+.hero { background: linear-gradient(135deg, var(--k) 0%, var(--k2) 60%, #2a0508 100%); color: var(--w); padding: 64px var(--pad); position: relative; overflow: hidden; }
+.hero::before { content: ""; position: absolute; top: -100px; right: -100px; width: 500px; height: 500px; background: radial-gradient(circle, rgba(252,220,4,0.12) 0%, transparent 70%); }
+.hero-inner { max-width: var(--grid); margin: 0 auto; position: relative; z-index: 1; }
+.hero .sec-num { color: var(--yellow); }
+.hero h2 { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 600; font-size: clamp(40px, 6vw, 72px); line-height: 1; letter-spacing: -0.04em; color: var(--w); max-width: 18ch; margin-bottom: 20px; }
+.hero h2 em { font-style: italic; font-weight: 500; color: var(--yellow); }
+.hero p.deck { font-size: 18px; line-height: 1.5; color: var(--g2); max-width: 55ch; margin-bottom: 0; }
+.hero-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 40px; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.1); }
+.hs-cell .v { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 600; font-size: 42px; line-height: 1; letter-spacing: -0.03em; color: var(--yellow); font-variant-numeric: tabular-nums; }
+.hs-cell .l { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--g2); margin-top: 8px; }
+@media (max-width: 880px) { .hero-stats { grid-template-columns: repeat(2, 1fr); } }
+
+.map-frame { height: 580px; background: var(--w3); border: 2px solid var(--red); position: relative; margin-top: 24px; }
+#leaflet-map { height: 100%; width: 100%; }
+.map-info { position: absolute; top: 16px; left: 16px; z-index: 500; background: rgba(255,255,255,0.97); border: 1px solid var(--k); padding: 10px 14px; display: flex; align-items: center; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+.map-toggle { position: absolute; top: 16px; right: 16px; z-index: 500; background: rgba(255,255,255,0.97); border: 1px solid var(--k); display: flex; }
+.map-toggle button { padding: 8px 14px; background: transparent; border: none; border-right: 1px solid var(--g3); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--g1); }
+.map-toggle button:last-child { border-right: none; }
+.map-toggle button.on { background: var(--red); color: var(--w); }
+.map-legend { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 24px; padding: 12px 16px; background: var(--w2); border: 1px solid var(--rule); font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--g1); }
+.map-legend .pip { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 6px; vertical-align: -2px; }
+
+.findings { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 2px solid var(--red); margin-top: 24px; }
+.fc { padding: 28px 24px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); background: var(--w); }
+.fc:nth-child(3n) { border-right: none; }
+.fc .num { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--orange); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 14px; }
+.fc .v { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 600; font-size: 56px; line-height: 1; letter-spacing: -0.04em; color: var(--k); font-variant-numeric: tabular-nums; }
+.fc .v em { font-style: italic; font-weight: 500; color: var(--red); }
+.fc .v small { font-size: 18px; color: var(--g1); font-weight: 400; }
+.fc .body { font-size: 13px; line-height: 1.55; color: var(--g1); margin-top: 14px; max-width: 32ch; }
+.fc .body strong { color: var(--k); font-weight: 500; }
+@media (max-width: 880px) { .findings { grid-template-columns: 1fr; } .fc { border-right: none !important; } }
+
+.chart-grid { margin-top: 32px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 880px) { .chart-grid { grid-template-columns: 1fr; } }
+.chart-block { background: var(--w); padding: 24px; border: 1px solid var(--rule); }
+.chart-block h4 { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 600; font-size: 18px; letter-spacing: -0.02em; margin-bottom: 4px; }
+.chart-block .sub { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--g1); margin-bottom: 18px; }
+.chart-svg { width: 100%; height: 220px; display: block; }
+
+.gap-row { margin-bottom: 14px; }
+.gap-row .lbl { font-size: 13px; color: var(--k); font-weight: 500; margin-bottom: 6px; display: flex; justify-content: space-between; }
+.gap-row .lbl small { color: var(--g1); font-weight: 400; font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+.gap-bar-wrap { position: relative; height: 24px; background: var(--w3); }
+.gap-bar-own, .gap-bar-use { position: absolute; left: 0; top: 0; bottom: 0; display: flex; align-items: center; padding-left: 8px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.gap-bar-own { background: var(--g3); color: var(--k); }
+.gap-bar-use { background: var(--red); color: var(--w); }
+.gap-legend { display: flex; gap: 18px; margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--rule); font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--g1); letter-spacing: 0.04em; text-transform: uppercase; }
+.gap-legend .sw { width: 14px; height: 14px; display: inline-block; margin-right: 5px; vertical-align: -3px; }
+
+.kn-row { margin-bottom: 12px; }
+.kn-row .lbl { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 12.5px; }
+.kn-row .lbl .name { color: var(--k); }
+.kn-row .lbl .val { color: var(--red); font-weight: 500; font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+.kn-track { height: 8px; background: var(--w3); }
+.kn-fill { height: 100%; background: var(--k); transition: width 0.6s ease; }
+
+.calendar-wrap { padding: 24px; border: 1px solid rgba(255,255,255,0.1); margin-top: 24px; overflow-x: auto; background: var(--k2); }
+.calendar-wrap h4 { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 600; font-size: 18px; margin-bottom: 4px; letter-spacing: -0.02em; color: var(--w); }
+.calendar-wrap .sub { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--g2); margin-bottom: 18px; }
+.cal-grid { display: grid; grid-template-columns: 60px repeat(12, 1fr); gap: 4px; min-width: 700px; }
+.cal-month-hdr { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-align: center; color: var(--g2); letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 0; }
+.cal-year-lbl { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500; color: var(--w); display: flex; align-items: center; padding-right: 8px; }
+.cal-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 500; cursor: default; transition: transform 0.15s; }
+.cal-cell:hover { transform: scale(1.15); position: relative; z-index: 5; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+.cal-cell.empty { background: rgba(255,255,255,0.04); }
+.cal-legend-row { display: flex; align-items: center; gap: 8px; margin-top: 16px; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--g2); }
+.cal-legend-row .scale { display: flex; gap: 2px; }
+.cal-legend-row .scale-cell { width: 18px; height: 12px; }
+
+.shops-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0; margin-top: 24px; border-top: 2px solid var(--red); border-left: 1px solid var(--rule); }
+.shop-card { padding: 24px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); background: var(--w); }
+.shop-card .rank { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 600; font-style: italic; font-size: 16px; color: var(--g2); float: right; }
+.shop-card .name { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 600; font-size: 18px; letter-spacing: -0.02em; margin-bottom: 4px; }
+.shop-card .meta-line { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--g1); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 14px; }
+.shop-score { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+.score-pip { width: 12px; height: 12px; background: var(--w3); border: 1px solid var(--g3); }
+.score-pip.on { background: var(--red); border-color: var(--red); }
+.score-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--g1); margin-left: 6px; }
+.shop-attrs { font-size: 12px; line-height: 1.65; }
+.shop-attrs .attr { display: flex; gap: 8px; padding: 4px 0; border-bottom: 1px dashed var(--rule); }
+.shop-attrs .attr:last-child { border-bottom: none; }
+.shop-attrs .attr .label { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--g1); letter-spacing: 0.04em; text-transform: uppercase; flex-shrink: 0; width: 90px; }
+.shop-attrs .attr .val { color: var(--k); flex: 1; }
+.shop-attrs .attr .val.good { color: var(--green); font-weight: 500; }
+.shop-attrs .attr .val.bad { color: var(--red); font-weight: 500; }
+.shop-attrs .attr .val.warn { color: var(--orange); font-weight: 500; }
+
+.priority-list { margin-top: 24px; border-top: 2px solid var(--red); }
+.priority-row { display: grid; grid-template-columns: 60px 1.6fr 1fr auto; gap: 16px; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--rule); }
+.priority-rank { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 600; font-style: italic; font-size: 24px; color: var(--red); font-variant-numeric: tabular-nums; }
+.priority-info b { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 600; font-size: 15px; letter-spacing: -0.015em; display: block; margin-bottom: 3px; }
+.priority-info .det { font-size: 12px; color: var(--g1); }
+.priority-flags { display: flex; flex-wrap: wrap; gap: 4px; }
+.priority-score { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 500; color: var(--red); text-align: right; font-variant-numeric: tabular-nums; }
+.priority-score::after { content: "/7"; font-size: 11px; color: var(--g1); }
+.badge { display: inline-block; padding: 2px 7px; background: var(--w3); font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--g1); }
+@media (max-width: 880px) { .priority-row { grid-template-columns: 40px 1fr; gap: 12px; } .priority-flags, .priority-score { grid-column: 1 / -1; } .priority-score { text-align: left; } }
+
+.filter-row { display: flex; gap: 8px; margin-top: 24px; margin-bottom: 24px; flex-wrap: wrap; }
+.filter-pill { padding: 8px 16px; background: var(--w); border: 1px solid var(--g3); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--g1); transition: all 0.15s; }
+.filter-pill:hover { border-color: var(--red); color: var(--red); }
+.filter-pill.on { background: var(--red); border-color: var(--red); color: var(--w); }
+.gallery { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+.gallery .tile { position: relative; aspect-ratio: 1; overflow: hidden; cursor: zoom-in; background: var(--w2); }
+.gallery .tile img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+.gallery .tile:hover img { transform: scale(1.05); }
+.gallery .tile .meta { position: absolute; bottom: 0; left: 0; right: 0; padding: 5px 7px; background: linear-gradient(to top, rgba(0,0,0,0.85), transparent); color: var(--w); font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0; transition: opacity 0.2s; }
+.gallery .tile:hover .meta { opacity: 1; }
+@media (max-width: 880px) { .gallery { grid-template-columns: repeat(3, 1fr); } }
+
+.lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.96); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 24px; cursor: zoom-out; }
+.lightbox.on { display: flex; }
+.lightbox img { max-width: 92vw; max-height: 84vh; }
+.lb-meta { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); color: var(--w); font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; background: var(--red); padding: 8px 16px; }
+
+.team-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px; }
+.team-grid .tile { aspect-ratio: 4/3; overflow: hidden; background: var(--w2); }
+.team-grid .tile img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+.team-grid .tile:hover img { transform: scale(1.04); }
+@media (max-width: 880px) { .team-grid { grid-template-columns: 1fr; } }
+
+.acknowledgment { margin-top: 32px; padding: 32px; background: var(--w2); border-left: 4px solid var(--red); }
+.acknowledgment h4 { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 600; font-size: 18px; margin-bottom: 12px; letter-spacing: -0.02em; }
+.acknowledgment p { font-size: 14px; line-height: 1.6; color: var(--g1); margin-bottom: 12px; }
+.acknowledgment p:last-child { margin-bottom: 0; }
+.acknowledgment strong { color: var(--k); }
+
+.dcta { background: var(--red); color: var(--w); padding: 64px var(--pad); text-align: center; }
+.dcta h3 { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 600; font-size: clamp(28px, 4vw, 44px); line-height: 1.1; letter-spacing: -0.025em; margin-bottom: 16px; }
+.dcta p { font-size: 17px; line-height: 1.5; max-width: 50ch; margin: 0 auto 24px; opacity: 0.95; }
+.dcta a { display: inline-block; padding: 14px 32px; background: transparent; color: var(--w); border: 2px solid var(--w); font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 500; transition: all 0.15s; }
+.dcta a:hover { background: var(--w); color: var(--red); text-decoration: none; }
+
+footer.dft { background: var(--k); color: var(--g2); padding: 32px var(--pad); text-align: center; border-top: 3px solid var(--red); }
+footer.dft p { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; }
+footer.dft a { color: var(--yellow); }
+
+.leaflet-container { font-family: 'Manrope', sans-serif; }
+.leaflet-popup-content-wrapper { background: var(--w); border: 1px solid var(--k); border-radius: 0; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
+.leaflet-popup-tip { background: var(--w); border: 1px solid var(--k); }
+.leaflet-popup-content { margin: 14px 16px; font-size: 12.5px; line-height: 1.4; }
+.leaflet-popup-content b { display: block; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 600; font-size: 15px; letter-spacing: -0.02em; margin-bottom: 4px; }
+.leaflet-popup-content .pop-meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--g1); letter-spacing: 0.04em; text-transform: uppercase; margin-top: 6px; }
+.leaflet-popup-content .pop-img { width: 200px; height: 120px; object-fit: cover; margin: 6px 0; }
+.leaflet-control-zoom a { background: var(--w) !important; color: var(--k) !important; border: 1px solid var(--k) !important; }
+
+@media (max-width: 880px) {
+  section { padding: 48px 24px; }
+  .topbar { padding: 8px 16px; }
+  header.dh { padding: 14px 24px; }
+  nav.snav { padding: 0 16px; }
+  nav.snav a { padding: 12px 14px; font-size: 10px; }
+  .map-frame { height: 420px; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="../projects.html">← Back to MYCU Projects</a>
+  <div class="right">Kasanvu · Live Data · April 2026</div>
+</div>
+
+<header class="dh">
+  <div class="dh-brand">
+    <img src="logo.jpg" alt="MYCU">
+    <div>
+      <h1>Kasanvu <span>Portal</span></h1>
+      <p>MYCU Makerere · Namuwongo Field Study</p>
+    </div>
+  </div>
+  <div class="dh-status">
+    <span class="dot"></span>
+    <span>56 HH · 7 SHOPS · 30 PHOTOS</span>
+  </div>
+</header>
+
+<nav class="snav">
+  <ul>
+    <li><a href="#overview" class="nl active">Overview</a></li>
+    <li><a href="#map" class="nl">Risk Map</a></li>
+    <li><a href="#findings" class="nl">Findings</a></li>
+    <li><a href="#cases" class="nl">Cases</a></li>
+    <li><a href="#evidence" class="nl">Evidence</a></li>
+    <li><a href="#shops" class="nl">Drug Shops</a></li>
+    <li><a href="#priorities" class="nl">Priorities</a></li>
+    <li><a href="#team" class="nl">Field Team</a></li>
+  </ul>
+</nav>
+
+<section class="hero full" id="overview">
+  <div class="hero-inner">
+    <div class="sec-num">Field Study · April 2026</div>
+    <h2>Kasanvu by <em>the actual numbers.</em></h2>
+    <p class="deck">An interactive system built on real Google Forms responses — 56 households, 7 drug shops, 30 GPS-tagged hazard photos in one of Kampala's highest-burden informal settlements.</p>
+    <div class="hero-stats">
+      <div class="hs-cell"><div class="v" id="stat-hh">56</div><div class="l">Households<br>surveyed</div></div>
+      <div class="hs-cell"><div class="v" id="stat-shops">7</div><div class="l">Drug shops<br>mapped</div></div>
+      <div class="hs-cell"><div class="v" id="stat-photos">30</div><div class="l">GPS hazard<br>sites</div></div>
+      <div class="hs-cell"><div class="v" id="stat-priority">—</div><div class="l">Priority<br>households</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="map">
+  <div class="sec-num">Part 01 · Risk Map</div>
+  <h2 class="sec-title">Kasanvu, <em>mapped.</em></h2>
+  <p class="sec-deck">Every household, drug shop, and hazard photo is plotted within the Kasanvu zone boundary. Click any marker for details. Toggle layers using the controls.</p>
+  <div class="map-frame">
+    <div id="leaflet-map"></div>
+    <div class="map-info"><span class="dot"></span><span>Kasanvu · Namuwongo</span></div>
+    <div class="map-toggle">
+      <button class="on" id="lyr-photos-btn" onclick="toggleLayer('photos', this)">Photos</button>
+      <button class="on" id="lyr-hh-btn" onclick="toggleLayer('hh', this)">Households</button>
+      <button class="on" id="lyr-shops-btn" onclick="toggleLayer('shops', this)">Shops</button>
+    </div>
+  </div>
+  <div class="map-legend">
+    <span><span class="pip" style="background:#000"></span>Hazard photo</span>
+    <span><span class="pip" style="background:var(--red)"></span>Priority household</span>
+    <span><span class="pip" style="background:var(--green)"></span>Other household</span>
+    <span><span class="pip" style="background:#1e3a5f;border-radius:0;"></span>Drug shop</span>
+    <span style="margin-left:auto;opacity:0.6">Source: Google Forms · April 2026</span>
+  </div>
+</section>
+
+<section class="grey full" id="findings">
+  <div style="max-width:var(--grid);margin:0 auto">
+    <div class="sec-num">Part 02 · Household Findings</div>
+    <h2 class="sec-title">The numbers from <em>56 doorsteps.</em></h2>
+    <p class="sec-deck">Every figure below is computed live from the actual interviews. No simulation, no estimation.</p>
+    <div class="findings" id="findings-cards"></div>
+    <div class="chart-grid">
+      <div class="chart-block">
+        <h4>Net ownership vs. actual use</h4>
+        <div class="sub">Across 56 households · by housing type</div>
+        <div id="chart-gap"></div>
+        <div class="gap-legend">
+          <span><span class="sw" style="background:var(--g3)"></span>Owns net</span>
+          <span><span class="sw" style="background:var(--red)"></span>All slept under net</span>
+        </div>
+      </div>
+      <div class="chart-block">
+        <h4>Treatment-seeking behavior</h4>
+        <div class="sub">First action when symptoms appear</div>
+        <svg id="chart-treatment" class="chart-svg"></svg>
+      </div>
+      <div class="chart-block">
+        <h4>Environmental risk distribution</h4>
+        <div class="sub">Composite score · 0 (best) to 7 (worst)</div>
+        <svg id="chart-risk-dist" class="chart-svg"></svg>
+      </div>
+      <div class="chart-block">
+        <h4>Knowledge across the sample</h4>
+        <div class="sub">% of respondents</div>
+        <div id="chart-knowledge"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="dark full" id="cases">
+  <div style="max-width:var(--grid);margin:0 auto">
+    <div class="sec-num">Part 03 · Cases</div>
+    <h2 class="sec-title">Four years at <em>Kisugu Health Centre III.</em></h2>
+    <p class="sec-deck">51 months of DHIS2 records (Jan 2022 – Mar 2026). Confirmed malaria cases by month, year-over-year seasonality, and full timeline.</p>
+    <div class="calendar-wrap">
+      <h4>Calendar heatmap · Confirmed malaria cases monthly</h4>
+      <div class="sub">Darker = more cases · Hover any cell for exact value</div>
+      <div id="calendar-grid"></div>
+      <div class="cal-legend-row">
+        <span>Less</span><div class="scale" id="cal-scale"></div><span>More</span>
+      </div>
+    </div>
+    <div class="chart-grid" style="margin-top:24px">
+      <div class="chart-block" style="background:var(--k2);border-color:rgba(255,255,255,0.1);color:var(--w)">
+        <h4 style="color:var(--w)">Seasonality (mean by month)</h4>
+        <div class="sub" style="color:var(--g2)">Average confirmed cases per month-of-year</div>
+        <svg id="chart-seasonality" class="chart-svg"></svg>
+      </div>
+      <div class="chart-block" style="background:var(--k2);border-color:rgba(255,255,255,0.1);color:var(--w)">
+        <h4 style="color:var(--w)">Yearly totals</h4>
+        <div class="sub" style="color:var(--g2)">Confirmed cases per year</div>
+        <svg id="chart-yearly" class="chart-svg"></svg>
+      </div>
+    </div>
+    <div class="chart-block" style="background:var(--k2);border-color:rgba(255,255,255,0.1);color:var(--w);margin-top:24px">
+      <h4 style="color:var(--w)">Full timeline · Suspected, tested, confirmed</h4>
+      <div class="sub" style="color:var(--g2)">Jan 2022 – Mar 2026</div>
+      <svg id="chart-timeline" class="chart-svg" style="height:280px"></svg>
+    </div>
+  </div>
+</section>
+
+<section id="evidence">
+  <div class="sec-num">Part 04 · Field Evidence</div>
+  <h2 class="sec-title">30 photos, <em>one landscape of neglect.</em></h2>
+  <p class="sec-deck">A representative subset of the field collection. Every image GPS-tagged at the moment of capture.</p>
+  <div class="filter-row" id="filter-row">
+    <button class="filter-pill on" data-cat="all">All (30)</button>
+  </div>
+  <div class="gallery" id="gallery"></div>
+</section>
+
+<section class="grey full" id="shops">
+  <div style="max-width:var(--grid);margin:0 auto">
+    <div class="sec-num">Part 05 · Drug Shop Intelligence</div>
+    <h2 class="sec-title">The first <em>point of care.</em></h2>
+    <p class="sec-deck">7 drug shops surveyed. Ranked by partnership readiness — NDA registration, RDT availability, training, referral discipline, stockout management.</p>
+    <div class="shops-grid" id="shops-grid"></div>
+  </div>
+</section>
+
+<section id="priorities">
+  <div class="sec-num">Part 06 · Action</div>
+  <h2 class="sec-title">Top households for <em>net support.</em></h2>
+  <p class="sec-deck">Ranked by composite vulnerability — children under 5, pregnant women, environmental exposure, housing quality, current net status.</p>
+  <div class="priority-list" id="priority-list"></div>
+</section>
+
+<section class="grey full" id="team">
+  <div style="max-width:var(--grid);margin:0 auto">
+    <div class="sec-num">Part 07 · About the Field Study</div>
+    <h2 class="sec-title">The <em>team behind the data.</em></h2>
+    <p class="sec-deck">This project was carried out by students from Makerere University in collaboration with the <strong>College of Engineering, Design, Art &amp; Technology</strong>. Trained enumerators conducted the surveys over two weeks in April 2026, with all data captured via Google Forms.</p>
+    <div class="team-grid">
+      <div class="tile"><img src="images/field-team/team_photo_after_outreach.jpg" alt="Field team after outreach"></div>
+      <div class="tile"><img src="images/field-team/sensitization_about_malaria.jpg" alt="Community sensitization"></div>
+      <div class="tile"><img src="images/field-team/Team_taking_a_photo_with_the_locals.jpg" alt="Team with locals"></div>
+      <div class="tile"><img src="images/field-team/administering_the_questionnaire.jpg" alt="Administering questionnaire"></div>
+      <div class="tile"><img src="images/field-team/one_on_one_sensitization.jpg" alt="One-on-one sensitization"></div>
+      <div class="tile"><img src="images/field-team/administering_a_drug_shop_questionnare_survey.jpg" alt="Drug shop survey"></div>
+    </div>
+    <div class="acknowledgment">
+      <h4>Partnership &amp; Acknowledgments</h4>
+      <p>This field study was conducted in collaboration with students from <strong>Makerere University's College of Engineering, Design, Art &amp; Technology</strong>, bringing together expertise in public health, data science, GIS mapping, and community engagement.</p>
+      <p>Special thanks to the residents of Kasanvu, local community leaders, Village Health Teams, and the Kisugu Health Centre III staff for their cooperation and support throughout this study.</p>
+    </div>
+  </div>
+</section>
+
+<section class="dcta full">
+  <h3>Want to support this work?</h3>
+  <p>Every contribution moves us closer to malaria-free communities. Make a pledge or give directly via mobile money.</p>
+  <a href="../donate.html">Make a donation →</a>
+</section>
+
+<footer class="dft">
+  <p>© 2026 Malaria Youth Champions Uganda · Makerere Chapter · <a href="../index.html">Back to home</a></p>
+</footer>
+
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('on')">
+  <img id="lb-img" src="" alt="">
+  <div class="lb-meta" id="lb-meta"></div>
+</div>
+
+<script>
+function pct(arr, fn) { return arr.length ? Math.round(100 * arr.filter(fn).length / arr.length) : 0; }
+function humanCat(c) { return ({stagnant_water:'Stagnant water',waste_channel:'Waste channel',open_drain:'Open drain',blocked_drain:'Blocked drain'})[c] || c; }
+
+let MAP, LAYERS = {};
+
+function initMap() {
+  if (!window.DATA || !DATA.kasanvu_polygon || !DATA.kasanvu_polygon.coords) {
+    console.error('No polygon data'); return;
+  }
+  const polygon = DATA.kasanvu_polygon.coords;
+  const lats = polygon.map(p => p[0]);
+  const lngs = polygon.map(p => p[1]);
+  const center = [(Math.min(...lats) + Math.max(...lats)) / 2, (Math.min(...lngs) + Math.max(...lngs)) / 2];
+
+  MAP = L.map('leaflet-map', { zoomControl: true }).setView(center, 17);
+  MAP.fitBounds([[Math.min(...lats), Math.min(...lngs)], [Math.max(...lats), Math.max(...lngs)]], { padding: [40, 40] });
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { subdomains: 'abcd', maxZoom: 20, attribution: '© OSM · © CARTO' }).addTo(MAP);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', { subdomains: 'abcd', maxZoom: 20, pane: 'shadowPane' }).addTo(MAP);
+
+  L.polygon(polygon, { fillColor: '#C8102E', fillOpacity: 0.12, color: '#000', weight: 2, opacity: 0.8 })
+    .bindPopup('<b>Kasanvu Zone</b><div class="pop-meta">Namuwongo · Makindye Division</div>').addTo(MAP);
+
+  LAYERS.photos = L.layerGroup();
+  (DATA.photos || []).forEach(p => {
+    L.circleMarker([p.lat, p.lng], { radius: 5, fillColor: '#000', fillOpacity: 0.85, color: '#fff', weight: 1.5 })
+      .bindPopup(`<b>${humanCat(p.category)}</b><img class="pop-img" src="images/thumbs/${p.file}" alt="" onerror="this.style.display='none'"><div class="pop-meta">${new Date(p.ts).toLocaleDateString()}${p.sender ? ' · ' + p.sender : ''}</div>`)
+      .addTo(LAYERS.photos);
+  });
+  LAYERS.photos.addTo(MAP);
+
+  LAYERS.hh = L.layerGroup();
+  (DATA.households || []).forEach(h => {
+    if (!h.lat || !h.lng) return;
+    const color = h.priority_for_net_support ? '#C8102E' : '#1a8a3a';
+    L.circleMarker([h.lat, h.lng], { radius: 5 + (h.risk_score || 0) * 0.6, fillColor: color, fillOpacity: 0.7, color: '#fff', weight: 1.2 })
+      .bindPopup(`<b>${h.id}</b>${h.respondent || 'Household'}<br><span class="pop-meta">${h.house_type} · ${h.hh_size} people</span><div style="margin-top:4px;font-size:11.5px">${h.has_net ? `${h.n_nets} net(s) · slept: <b style="font-size:11.5px;display:inline">${h.slept_under_net || 'unknown'}</b>` : '<span style="color:#C8102E">No net</span>'}</div><div class="pop-meta">Risk score ${h.risk_score || 0}/7${h.priority_for_net_support ? ' · PRIORITY' : ''}</div>`)
+      .addTo(LAYERS.hh);
+  });
+  LAYERS.hh.addTo(MAP);
+
+  LAYERS.shops = L.layerGroup();
+  (DATA.drug_shops || []).forEach(s => {
+    if (!s.lat || !s.lng) return;
+    const icon = L.divIcon({
+      className: 'shop-marker',
+      html: `<div style="background:#1e3a5f;color:white;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border:2px solid white;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;box-shadow:0 2px 6px rgba(0,0,0,.3)">℞</div>`,
+      iconSize: [22, 22], iconAnchor: [11, 11]
+    });
+    L.marker([s.lat, s.lng], { icon }).bindPopup(`<b>${s.name}</b>${s.years_operating}<br><span class="pop-meta">NDA: ${s.nda_registered} · RDT: ${s.rdt_availability}</span><div style="margin-top:6px;font-size:11.5px">Quality: <b style="font-size:11.5px;display:inline">${s.partnership_quality_score}/5</b></div>`).addTo(LAYERS.shops);
+  });
+  LAYERS.shops.addTo(MAP);
+
+  (DATA.health_facilities || []).forEach(f => {
+    if (!f.lat || !f.lng) return;
+    const icon = L.divIcon({
+      className: 'hf-marker',
+      html: `<div style="background:#1a8a3a;color:white;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border:2px solid white;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.3)">+</div>`,
+      iconSize: [24, 24], iconAnchor: [12, 12]
+    });
+    L.marker([f.lat, f.lng], { icon }).bindPopup(`<b>${f.name}</b>${f.type}<br><span class="pop-meta">${(f.services || []).join(' · ')}</span>`).addTo(MAP);
+  });
+}
+
+window.toggleLayer = function(name, btn) {
+  const layer = LAYERS[name];
+  if (!layer) return;
+  if (MAP.hasLayer(layer)) { MAP.removeLayer(layer); btn.classList.remove('on'); }
+  else { MAP.addLayer(layer); btn.classList.add('on'); }
+};
+
+function renderFindings() {
+  const hh = DATA.households || [];
+  const n = hh.length;
+  if (!n) return;
+
+  const ownPct = pct(hh, h => h.has_net);
+  const usePct = pct(hh, h => h.slept_under_net === 'All');
+  const u5Total = hh.filter(h => h.has_u5).length;
+  const u5NoNet = hh.filter(h => h.has_u5 && (!h.has_net || h.net_condition === 'Torn/Old')).length;
+  const u5Pct = u5Total ? Math.round(100 * u5NoNet / u5Total) : 0;
+  const drainagePoor = pct(hh, h => h.drainage === 'Poor' || h.drainage === 'Fair');
+  const facilityFirst = pct(hh, h => h.first_action === 'Health facility');
+  const drugShopFirst = pct(hh, h => h.first_action === 'Drug shop');
+  const knowsCause = pct(hh, h => h.knows_mosquito_cause);
+  const priorityCount = hh.filter(h => h.priority_for_net_support).length;
+  const pregnantCount = hh.filter(h => h.pregnant).length;
+
+  document.getElementById('stat-priority').textContent = priorityCount;
+  document.getElementById('stat-hh').textContent = n;
+  document.getElementById('stat-shops').textContent = (DATA.drug_shops || []).length;
+  document.getElementById('stat-photos').textContent = (DATA.photos || []).length;
+
+  const cards = [
+    { num: '01 / Net coverage', val: `<em>${ownPct}</em><small>%</small>`, body: `<strong>${ownPct}% of ${n} households own at least one mosquito net.</strong> Only ${usePct}% had everyone sleep under a net last night. Coverage gap: ${ownPct - usePct} pts.` },
+    { num: '02 / Vulnerable children', val: `<em>${u5NoNet}</em><small>/${u5Total}</small>`, body: `<strong>${u5Pct}% of households with children under 5 lack proper net protection.</strong> Highest priority for distribution.` },
+    { num: '03 / Treatment-seeking', val: `<em>${facilityFirst}</em><small>%</small>`, body: `<strong>${facilityFirst}% go to a health facility first</strong> when symptoms appear. ${drugShopFirst}% go to drug shops — making shops a critical intervention point.` },
+    { num: '04 / Drainage', val: `<em>${drainagePoor}</em><small>%</small>`, body: `<strong>${drainagePoor}% report fair or poor drainage</strong>. The 30 hazard photos confirm this — drains are the highest-leverage environmental fix.` },
+    { num: '05 / Knowledge', val: `<em>${knowsCause}</em><small>%</small>`, body: `<strong>${knowsCause}% know mosquitoes cause malaria</strong>, yet only ${ownPct}% own nets. The gap is access, not awareness.` },
+    { num: '06 / Priority list', val: `<em>${priorityCount}</em><small>/${n}</small>`, body: `<strong>${Math.round(100*priorityCount/n)}% flagged priority for net support</strong> — under-5 kids, pregnant women, no nets. ${pregnantCount} pregnant women in the sample.` }
+  ];
+
+  document.getElementById('findings-cards').innerHTML = cards.map(c =>
+    `<div class="fc"><div class="num">${c.num}</div><div class="v">${c.val}</div><div class="body">${c.body}</div></div>`
+  ).join('');
+
+  // Gap chart
+  const housing = ['Permanent', 'Semi-permanent', 'Temporary'];
+  document.getElementById('chart-gap').innerHTML = housing.map(t => {
+    const sub = hh.filter(h => h.house_type === t);
+    if (!sub.length) return '';
+    const own = pct(sub, h => h.has_net);
+    const use = pct(sub, h => h.slept_under_net === 'All');
+    return `<div class="gap-row"><div class="lbl"><span>${t}</span><small>n=${sub.length}</small></div><div class="gap-bar-wrap"><div class="gap-bar-own" style="width:${Math.max(own, 6)}%">${own}%</div><div class="gap-bar-use" style="width:${Math.max(use, 6)}%">${use}%</div></div></div>`;
+  }).join('');
+
+  // Treatment donut
+  const tt = { 'Health facility': 0, 'Drug shop': 0, 'Self-medicate': 0 };
+  hh.forEach(h => {
+    if (tt[h.first_action] !== undefined) tt[h.first_action]++;
+    else if (h.first_action) tt['Self-medicate']++;
+  });
+  drawDonut('chart-treatment', tt, ['#1a8a3a', '#C8102E', '#E67E22']);
+
+  // Risk histogram
+  const buckets = [0, 1, 2, 3, 4, 5, 6, 7].map(s => hh.filter(h => h.risk_score === s).length);
+  drawHistogram('chart-risk-dist', buckets);
+
+  // Knowledge bars
+  const knMetrics = [
+    { label: 'Knows mosquitoes cause malaria', pct: knowsCause },
+    { label: 'Can name 2+ prevention methods', pct: pct(hh, h => h.knows_prevention) },
+    { label: 'Knows malaria symptoms', pct: pct(hh, h => h.knows_symptoms) },
+    { label: 'Owns at least one net', pct: ownPct },
+    { label: 'All members slept under net', pct: usePct },
+    { label: 'Practices indoor spraying', pct: pct(hh, h => h.indoor_spraying) }
+  ];
+  document.getElementById('chart-knowledge').innerHTML = knMetrics.map(m =>
+    `<div class="kn-row"><div class="lbl"><span class="name">${m.label}</span><span class="val">${m.pct}%</span></div><div class="kn-track"><div class="kn-fill" style="width:${m.pct}%"></div></div></div>`
+  ).join('');
+}
+
+function drawDonut(svgId, data, colors) {
+  const svg = document.getElementById(svgId);
+  if (!svg) return;
+  const W = svg.clientWidth || 300, H = 220;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const cx = W * 0.36, cy = H * 0.5;
+  const r = Math.min(cx, cy) - 12, ir = r * 0.55;
+  const sum = Object.values(data).reduce((a, b) => a + b, 0) || 1;
+  const labels = Object.keys(data), values = Object.values(data);
+  let a0 = -Math.PI / 2, html = '';
+  values.forEach((v, i) => {
+    const a1 = a0 + (v / sum) * Math.PI * 2;
+    const lf = (a1 - a0) > Math.PI ? 1 : 0;
+    const x0 = cx + r * Math.cos(a0), y0 = cy + r * Math.sin(a0);
+    const x1 = cx + r * Math.cos(a1), y1 = cy + r * Math.sin(a1);
+    const ix1 = cx + ir * Math.cos(a1), iy1 = cy + ir * Math.sin(a1);
+    const ix0 = cx + ir * Math.cos(a0), iy0 = cy + ir * Math.sin(a0);
+    if (v > 0) html += `<path d="M ${x0} ${y0} A ${r} ${r} 0 ${lf} 1 ${x1} ${y1} L ${ix1} ${iy1} A ${ir} ${ir} 0 ${lf} 0 ${ix0} ${iy0} Z" fill="${colors[i]}"/>`;
+    a0 = a1;
+  });
+  const legX = W * 0.65;
+  let legY = H * 0.32;
+  values.forEach((v, i) => {
+    const p = Math.round(100 * v / sum);
+    html += `<rect x="${legX}" y="${legY}" width="14" height="14" fill="${colors[i]}"/>`;
+    html += `<text x="${legX + 22}" y="${legY + 11}" font-family="Manrope" font-size="13" fill="currentColor">${labels[i]}</text>`;
+    html += `<text x="${legX + 22}" y="${legY + 28}" font-family="JetBrains Mono" font-size="11" fill="#6e6e6e">${v} (${p}%)</text>`;
+    legY += 42;
+  });
+  svg.innerHTML = html;
+}
+
+function drawHistogram(svgId, buckets) {
+  const svg = document.getElementById(svgId);
+  if (!svg) return;
+  const W = svg.clientWidth || 300, H = 220;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const padL = 36, padR = 16, padT = 12, padB = 38;
+  const max = Math.max(1, ...buckets);
+  const bw = (W - padL - padR) / buckets.length;
+  let html = '';
+  buckets.forEach((v, i) => {
+    const h = (v / max) * (H - padT - padB);
+    const x = padL + i * bw + 2;
+    const y = H - padB - h;
+    const fill = i >= 5 ? '#C8102E' : i >= 3 ? '#E67E22' : i >= 1 ? '#ffc4ad' : '#ffe9e0';
+    html += `<rect x="${x}" y="${y}" width="${bw - 4}" height="${Math.max(2, h)}" fill="${fill}" stroke="#a00018" stroke-width="0.5"/>`;
+    if (v > 0) html += `<text x="${x + (bw-4)/2}" y="${y - 4}" font-family="JetBrains Mono" font-size="10" fill="currentColor" text-anchor="middle" font-weight="500">${v}</text>`;
+    html += `<text x="${x + (bw-4)/2}" y="${H - padB + 14}" font-family="JetBrains Mono" font-size="10" fill="#6e6e6e" text-anchor="middle">${i}</text>`;
+  });
+  html += `<line x1="${padL}" y1="${H - padB}" x2="${W - padR}" y2="${H - padB}" stroke="currentColor" stroke-width="1"/>`;
+  html += `<text x="${(W)/2}" y="${H - 8}" font-family="JetBrains Mono" font-size="10" fill="#6e6e6e" text-anchor="middle">RISK SCORE (LOW → HIGH)</text>`;
+  svg.innerHTML = html;
+}
+
+function renderKisugu() {
+  const k = DATA.kisugu;
+  if (!k) return;
+  const months = k.monthly || [];
+  if (!months.length) return;
+
+  const years = [...new Set(months.map(m => m.year))].sort();
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const allCases = months.map(m => m.confirmed || 0).filter(v => v > 0);
+  const maxCases = Math.max(...allCases);
+  const minCases = Math.min(...allCases);
+
+  function colorScale(v) {
+    if (v == null) return 'rgba(255,255,255,0.04)';
+    const t = (v - minCases) / Math.max(1, maxCases - minCases);
+    if (t < 0.25) return `rgba(252,220,4,${0.3 + t*2})`;
+    if (t < 0.5) return `rgba(230,126,34,${0.5 + t*0.6})`;
+    return `rgba(200,16,46,${0.7 + t*0.3})`;
+  }
+
+  let calHtml = '<div class="cal-grid"><div></div>';
+  monthNames.forEach(m => calHtml += `<div class="cal-month-hdr">${m}</div>`);
+  years.forEach(y => {
+    calHtml += `<div class="cal-year-lbl">${y}</div>`;
+    for (let mo = 1; mo <= 12; mo++) {
+      const rec = months.find(m => m.year === y && m.month === mo);
+      if (rec && rec.confirmed != null) {
+        calHtml += `<div class="cal-cell" style="background:${colorScale(rec.confirmed)};color:${rec.confirmed > maxCases*0.5 ? '#fff' : '#000'}" title="${monthNames[mo-1]} ${y}: ${rec.confirmed} cases">${rec.confirmed}</div>`;
+      } else {
+        calHtml += `<div class="cal-cell empty"></div>`;
+      }
+    }
+  });
+  calHtml += '</div>';
+  document.getElementById('calendar-grid').innerHTML = calHtml;
+
+  document.getElementById('cal-scale').innerHTML = [0,0.25,0.5,0.75,1].map(t => {
+    const v = minCases + t*(maxCases - minCases);
+    return `<div class="scale-cell" style="background:${colorScale(v)}" title="~${Math.round(v)} cases"></div>`;
+  }).join('');
+
+  // Seasonality
+  const seasonality = monthNames.map((mn, i) => {
+    const monthData = months.filter(m => m.month === i+1 && m.confirmed != null);
+    if (!monthData.length) return { month: mn, avg: 0 };
+    return { month: mn, avg: Math.round(monthData.reduce((a,m) => a + m.confirmed, 0) / monthData.length) };
+  });
+  drawSeasonality('chart-seasonality', seasonality);
+
+  // Yearly
+  const yearlyTotals = years.map(y => {
+    const yMonths = months.filter(m => m.year === y && m.confirmed != null);
+    return { year: y, total: yMonths.reduce((a,m) => a + m.confirmed, 0), count: yMonths.length };
+  });
+  drawYearly('chart-yearly', yearlyTotals);
+
+  drawTimeline('chart-timeline', months);
+}
+
+function drawSeasonality(svgId, data) {
+  const svg = document.getElementById(svgId);
+  if (!svg) return;
+  const W = svg.clientWidth || 400, H = 220;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const padL = 36, padR = 16, padT = 12, padB = 38;
+  const max = Math.max(1, ...data.map(d => d.avg));
+  const bw = (W - padL - padR) / data.length;
+  let html = '';
+  data.forEach((d, i) => {
+    const h = (d.avg / max) * (H - padT - padB);
+    const x = padL + i * bw + 2;
+    const y = H - padB - h;
+    const isPeak = d.month === 'Jan' || d.month === 'Feb';
+    html += `<rect x="${x}" y="${y}" width="${bw - 4}" height="${Math.max(2, h)}" fill="${isPeak ? '#FCDC04' : '#E67E22'}" opacity="0.85"/>`;
+    if (d.avg > 0) html += `<text x="${x + (bw-4)/2}" y="${y - 4}" font-family="JetBrains Mono" font-size="9" fill="currentColor" text-anchor="middle">${d.avg}</text>`;
+    html += `<text x="${x + (bw-4)/2}" y="${H - padB + 14}" font-family="JetBrains Mono" font-size="9" fill="#aaa" text-anchor="middle">${d.month}</text>`;
+  });
+  html += `<line x1="${padL}" y1="${H - padB}" x2="${W - padR}" y2="${H - padB}" stroke="#aaa" stroke-width="1"/>`;
+  svg.innerHTML = html;
+}
+
+function drawYearly(svgId, data) {
+  const svg = document.getElementById(svgId);
+  if (!svg) return;
+  const W = svg.clientWidth || 400, H = 220;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const padL = 50, padR = 16, padT = 12, padB = 38;
+  const max = Math.max(1, ...data.map(d => d.total));
+  const bw = (W - padL - padR) / data.length;
+  let html = '';
+  data.forEach((d, i) => {
+    const h = (d.total / max) * (H - padT - padB);
+    const x = padL + i * bw + 4;
+    const y = H - padB - h;
+    html += `<rect x="${x}" y="${y}" width="${bw - 8}" height="${Math.max(2, h)}" fill="#C8102E" opacity="0.85"/>`;
+    html += `<text x="${x + (bw-8)/2}" y="${y - 6}" font-family="JetBrains Mono" font-size="11" fill="currentColor" text-anchor="middle" font-weight="500">${d.total.toLocaleString()}</text>`;
+    html += `<text x="${x + (bw-8)/2}" y="${H - padB + 14}" font-family="JetBrains Mono" font-size="10" fill="#aaa" text-anchor="middle">${d.year}</text>`;
+    if (d.count < 12) html += `<text x="${x + (bw-8)/2}" y="${H - padB + 28}" font-family="JetBrains Mono" font-size="8" fill="#aaa" text-anchor="middle" opacity="0.6">${d.count}mo</text>`;
+  });
+  html += `<line x1="${padL}" y1="${H - padB}" x2="${W - padR}" y2="${H - padB}" stroke="#aaa" stroke-width="1"/>`;
+  svg.innerHTML = html;
+}
+
+function drawTimeline(svgId, months) {
+  const svg = document.getElementById(svgId);
+  if (!svg) return;
+  const W = svg.clientWidth || 600, H = 280;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const padL = 50, padR = 20, padT = 12, padB = 50;
+  const innerW = W - padL - padR, innerH = H - padT - padB;
+  const maxVal = Math.max(...months.map(m => Math.max(m.suspected || 0, m.confirmed || 0, m.tested || 0)));
+  const stepX = innerW / (months.length - 1);
+
+  function lineFor(field, color, opacity = 1) {
+    let d = '';
+    months.forEach((m, i) => {
+      if (m[field] == null) return;
+      const x = padL + i * stepX;
+      const y = padT + innerH - (m[field] / maxVal) * innerH;
+      d += (d ? ' L ' : 'M ') + x + ' ' + y;
+    });
+    return `<path d="${d}" stroke="${color}" stroke-width="1.6" fill="none" opacity="${opacity}"/>`;
+  }
+
+  let html = '';
+  for (let t = 0; t <= 5; t++) {
+    const v = Math.round((maxVal * t) / 5);
+    const y = padT + innerH - (t / 5) * innerH;
+    html += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
+    html += `<text x="${padL - 8}" y="${y + 3}" font-family="JetBrains Mono" font-size="9" fill="#aaa" text-anchor="end">${v.toLocaleString()}</text>`;
+  }
+
+  const yearMarkers = {};
+  months.forEach((m, i) => { if (!yearMarkers[m.year]) yearMarkers[m.year] = i; });
+  Object.entries(yearMarkers).forEach(([year, i]) => {
+    const x = padL + i * stepX;
+    html += `<line x1="${x}" y1="${padT + innerH}" x2="${x}" y2="${padT + innerH + 4}" stroke="#aaa"/>`;
+    html += `<text x="${x}" y="${H - padB + 18}" font-family="JetBrains Mono" font-size="10" fill="#aaa" text-anchor="middle">${year}</text>`;
+  });
+
+  html += lineFor('suspected', '#FCDC04', 0.6);
+  html += lineFor('tested', '#E67E22', 0.7);
+  html += lineFor('confirmed', '#C8102E', 1);
+
+  const legY = padT + 8;
+  html += `<rect x="${padL + 8}" y="${legY}" width="14" height="2" fill="#C8102E"/><text x="${padL + 28}" y="${legY + 4}" font-family="JetBrains Mono" font-size="10" fill="#fff">Confirmed</text>`;
+  html += `<rect x="${padL + 110}" y="${legY}" width="14" height="2" fill="#E67E22"/><text x="${padL + 130}" y="${legY + 4}" font-family="JetBrains Mono" font-size="10" fill="#fff">Tested</text>`;
+  html += `<rect x="${padL + 200}" y="${legY}" width="14" height="2" fill="#FCDC04"/><text x="${padL + 220}" y="${legY + 4}" font-family="JetBrains Mono" font-size="10" fill="#fff">Suspected</text>`;
+
+  svg.innerHTML = html;
+}
+
+function renderGallery() {
+  const photos = DATA.photos || [];
+  const cats = [...new Set(photos.map(p => p.category))].filter(Boolean);
+  const fr = document.getElementById('filter-row');
+  cats.forEach(c => {
+    const count = photos.filter(p => p.category === c).length;
+    fr.insertAdjacentHTML('beforeend', `<button class="filter-pill" data-cat="${c}">${humanCat(c)} (${count})</button>`);
+  });
+  document.getElementById('gallery').innerHTML = photos.map(p =>
+    `<div class="tile" data-cat="${p.category}" onclick="openLightbox('${p.file}','${humanCat(p.category)}')"><img src="images/thumbs/${p.file}" alt="${p.category}" onerror="this.parentElement.style.display='none'"><div class="meta">${humanCat(p.category)}</div></div>`
+  ).join('');
+  document.querySelectorAll('#filter-row .filter-pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('#filter-row .filter-pill').forEach(x => x.classList.remove('on'));
+      p.classList.add('on');
+      const cat = p.dataset.cat;
+      document.querySelectorAll('#gallery .tile').forEach(t => {
+        t.style.display = (cat === 'all' || t.dataset.cat === cat) ? '' : 'none';
+      });
+    });
+  });
+}
+window.openLightbox = function(file, label) {
+  document.getElementById('lb-img').src = 'images/full/' + file;
+  document.getElementById('lb-meta').textContent = label;
+  document.getElementById('lightbox').classList.add('on');
+};
+
+function renderShops() {
+  const shops = (DATA.drug_shops || []).slice().sort((a, b) => b.partnership_quality_score - a.partnership_quality_score);
+  document.getElementById('shops-grid').innerHTML = shops.map((s, i) => {
+    const score = s.partnership_quality_score;
+    const pips = [0,1,2,3,4].map(j => `<div class="score-pip ${j < score ? 'on' : ''}"></div>`).join('');
+    const ndaCls = s.nda_registered === 'Yes' ? 'good' : (s.nda_registered === 'No' ? 'bad' : 'warn');
+    const rdtRoutine = (s.rdt_availability || '').toLowerCase().includes('routinely') && !(s.rdt_availability || '').toLowerCase().includes('not');
+    const rdtCls = rdtRoutine ? 'good' : (s.rdt_availability || '').toLowerCase().includes('not routinely') ? 'warn' : 'bad';
+    const trainCls = s.training_received === 'Formal' ? 'good' : (s.training_received === 'Informal/on-job' ? 'warn' : 'bad');
+    const stockCls = ['Never','Rarely'].includes(s.stockout_freq) ? 'good' : (s.stockout_freq === 'Sometimes' ? 'warn' : 'bad');
+    const drugs = (s.drugs_stocked || []).join(', ');
+    return `<div class="shop-card"><div class="rank">#${String(i+1).padStart(2,'0')}</div><div class="name">${s.name}</div><div class="meta-line">${s.years_operating || ''} · ${s.weekly_malaria_customers || ''} cust/wk</div><div class="shop-score">${pips}<span class="score-num">${score}/5</span></div><div class="shop-attrs"><div class="attr"><div class="label">NDA</div><div class="val ${ndaCls}">${s.nda_registered || '—'}</div></div><div class="attr"><div class="label">RDT</div><div class="val ${rdtCls}">${s.rdt_availability || '—'}</div></div><div class="attr"><div class="label">Training</div><div class="val ${trainCls}">${s.training_received || '—'}</div></div><div class="attr"><div class="label">Stockouts</div><div class="val ${stockCls}">${s.stockout_freq || '—'}</div></div><div class="attr"><div class="label">Refers</div><div class="val">${s.refer_to_facility || '—'}</div></div><div class="attr"><div class="label">Stocks</div><div class="val">${drugs || '—'}</div></div></div></div>`;
+  }).join('');
+}
+
+function renderPriorities() {
+  const hh = (DATA.households || [])
+    .filter(h => h.priority_for_net_support)
+    .sort((a, b) => (b.risk_score || 0) - (a.risk_score || 0) || (b.cases_3mo || 0) - (a.cases_3mo || 0))
+    .slice(0, 12);
+
+  document.getElementById('priority-list').innerHTML = hh.map((h, i) => {
+    const flags = [];
+    if (h.has_u5) flags.push(`<span class="badge">U5 × ${h.n_u5}</span>`);
+    if (h.pregnant) flags.push(`<span class="badge">Pregnant</span>`);
+    if (!h.has_net) flags.push(`<span class="badge">No net</span>`);
+    else if (h.net_condition === 'Torn/Old') flags.push(`<span class="badge">Torn net</span>`);
+    if (h.open_drain) flags.push(`<span class="badge">Open drain</span>`);
+    if (h.house_type === 'Temporary') flags.push(`<span class="badge">Temp housing</span>`);
+    if (h.screening === 'No') flags.push(`<span class="badge">No screens</span>`);
+    return `<div class="priority-row"><div class="priority-rank">${String(i+1).padStart(2,'0')}</div><div class="priority-info"><b>${h.id} · ${h.respondent || 'unnamed'}</b><div class="det">${h.house_type} · ${h.hh_size} people · ${h.cases_3mo || 0} case${h.cases_3mo === 1 ? '' : 's'} (3mo)${h.interviewer ? ' · ' + h.interviewer : ''}</div></div><div class="priority-flags">${flags.join('')}</div><div class="priority-score">${h.risk_score || 0}</div></div>`;
+  }).join('');
+}
+
+function initScrollSpy() {
+  const links = document.querySelectorAll('.nl');
+  const sections = Array.from(links).map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  function update() {
+    const y = window.scrollY + 200;
+    let active = sections[0];
+    sections.forEach(s => { if (s && s.offsetTop <= y) active = s; });
+    if (!active) return;
+    links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + active.id));
+  }
+  window.addEventListener('scroll', update);
+  update();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (!window.DATA) { console.error('DATA not loaded'); return; }
+  try { initMap(); } catch (e) { console.error('Map error:', e); }
+  try { renderFindings(); } catch (e) { console.error('Findings error:', e); }
+  try { renderKisugu(); } catch (e) { console.error('Kisugu error:', e); }
+  try { renderGallery(); } catch (e) { console.error('Gallery error:', e); }
+  try { renderShops(); } catch (e) { console.error('Shops error:', e); }
+  try { renderPriorities(); } catch (e) { console.error('Priorities error:', e); }
+  try { initScrollSpy(); } catch (e) { console.error('Scrollspy error:', e); }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About · MYCU Makerere Chapter</title>
+<link rel="icon" href="logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Manrope:wght@200..700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --mycu-red: #C8102E;
+  --mycu-red-dark: #a00018;
+  --mycu-yellow: #FCDC04;
+  --mycu-orange: #E67E22;
+  --w: #ffffff;
+  --w2: #fafafa;
+  --w3: #f0f0f0;
+  --k: #000000;
+  --k2: #1a1a1a;
+  --g1: #6e6e6e;
+  --g2: #aaaaaa;
+  --g3: #d4d4d4;
+  --rule: #e5e5e5;
+  --green: #1a8a3a;
+  --grid: 1280px;
+  --pad: 48px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--w);
+  color: var(--k);
+  font-family: 'Manrope', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+.tnum { font-variant-numeric: tabular-nums; }
+a { color: var(--mycu-red); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ===== HEADER ===== */
+header.site-header {
+  background: var(--w);
+  border-bottom: 2px solid var(--mycu-red);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.header-inner {
+  max-width: var(--grid);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px var(--pad);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-decoration: none;
+  color: var(--k);
+}
+.brand:hover { text-decoration: none; }
+.brand-logo {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+}
+.brand-text h1 {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 2px;
+}
+.brand-text h1 span { color: var(--mycu-red); }
+.brand-text p {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--g1);
+}
+
+nav.site-nav {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+nav.site-nav a {
+  padding: 10px 18px;
+  color: var(--k);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.15s;
+  border-bottom: 2px solid transparent;
+}
+nav.site-nav a:hover {
+  color: var(--mycu-red);
+  text-decoration: none;
+}
+nav.site-nav a.active {
+  border-bottom-color: var(--mycu-red);
+  color: var(--mycu-red);
+}
+nav.site-nav a.donate-btn {
+  background: var(--mycu-red);
+  color: var(--w);
+  border-radius: 0;
+  margin-left: 12px;
+  border-bottom-color: transparent;
+}
+nav.site-nav a.donate-btn:hover {
+  background: var(--mycu-red-dark);
+  color: var(--w);
+}
+
+/* Mobile nav */
+.mobile-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+  color: var(--k);
+}
+@media (max-width: 880px) {
+  .header-inner { padding: 12px 24px; }
+  .brand-logo { width: 44px; height: 44px; }
+  .brand-text h1 { font-size: 15px; }
+  .brand-text p { font-size: 8.5px; }
+  .mobile-toggle { display: block; }
+  nav.site-nav {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--w);
+    flex-direction: column;
+    border-bottom: 2px solid var(--mycu-red);
+    padding: 16px;
+    gap: 0;
+  }
+  nav.site-nav.open { display: flex; }
+  nav.site-nav a {
+    width: 100%;
+    text-align: left;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--rule);
+  }
+  nav.site-nav a.donate-btn { margin-left: 0; }
+}
+
+/* ===== SECTIONS ===== */
+section {
+  max-width: var(--grid);
+  margin: 0 auto;
+  padding: 80px var(--pad);
+}
+section.full-width {
+  max-width: none;
+  padding: 80px 0;
+}
+section.dark { background: var(--k); color: var(--w); }
+section.grey { background: var(--w2); }
+section.dark .sec-title { color: var(--w); }
+section.dark .sec-deck { color: var(--g2); }
+
+.sec-header { margin-bottom: 56px; }
+.sec-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mycu-red);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sec-label::before {
+  content: "";
+  width: 28px;
+  height: 2px;
+  background: var(--mycu-red);
+}
+.sec-title {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: clamp(32px, 5vw, 56px);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--k);
+  max-width: 22ch;
+}
+.sec-title em {
+  font-style: italic;
+  font-weight: 500;
+  color: var(--mycu-red);
+}
+.sec-deck {
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--g1);
+  margin-top: 20px;
+  max-width: 60ch;
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+  display: inline-block;
+  padding: 14px 28px;
+  background: var(--mycu-red);
+  color: var(--w);
+  border: 2px solid var(--mycu-red);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none;
+}
+.btn:hover {
+  background: var(--mycu-red-dark);
+  border-color: var(--mycu-red-dark);
+  color: var(--w);
+  text-decoration: none;
+}
+.btn.outline {
+  background: transparent;
+  color: var(--k);
+  border-color: var(--k);
+}
+.btn.outline:hover {
+  background: var(--k);
+  color: var(--w);
+}
+.btn.outline-w {
+  background: transparent;
+  color: var(--w);
+  border-color: var(--w);
+}
+.btn.outline-w:hover {
+  background: var(--w);
+  color: var(--k);
+}
+.btn.large {
+  padding: 18px 36px;
+  font-size: 13px;
+}
+
+/* ===== FOOTER ===== */
+footer.site-footer {
+  background: var(--k);
+  color: var(--w);
+  padding: 60px var(--pad) 32px;
+  border-top: 3px solid var(--mycu-red);
+}
+.footer-grid {
+  max-width: var(--grid);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 48px;
+  margin-bottom: 48px;
+}
+.footer-grid h5 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mycu-yellow);
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+.footer-grid p {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--g2);
+  margin-bottom: 8px;
+}
+.footer-grid a {
+  color: var(--g2);
+  font-size: 13px;
+  display: block;
+  padding: 4px 0;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.footer-grid a:hover {
+  color: var(--mycu-yellow);
+  text-decoration: none;
+}
+.footer-brand {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.footer-brand img {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+}
+.footer-brand-text h4 {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--w);
+  margin-bottom: 4px;
+}
+.footer-brand-text h4 span { color: var(--mycu-red); }
+.footer-brand-text p {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--g2);
+}
+.footer-bottom {
+  max-width: var(--grid);
+  margin: 0 auto;
+  border-top: 1px solid var(--k2);
+  padding-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--g2);
+}
+@media (max-width: 880px) {
+  .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+  .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+}
+
+/* ===== CARDS ===== */
+.card {
+  background: var(--w);
+  border: 1px solid var(--rule);
+  padding: 32px;
+  transition: all 0.2s;
+}
+.card.bordered {
+  border: 2px solid var(--mycu-red);
+}
+.card h3 {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+.card p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--g1);
+}
+
+/* ===== UTILITIES ===== */
+.text-center { text-align: center; }
+.spacer-small { height: 24px; }
+.spacer-med { height: 48px; }
+.spacer-large { height: 80px; }
+
+@media (max-width: 880px) {
+  section { padding: 56px 24px; }
+  .sec-title { font-size: 32px; }
+  .sec-deck { font-size: 16px; }
+}
+
+</style>
+<style>
+.page-hero {
+  background: var(--k);
+  color: var(--w);
+  padding: 100px 48px 80px;
+  position: relative;
+  overflow: hidden;
+}
+.page-hero::before {
+  content: "";
+  position: absolute;
+  bottom: -100px;
+  left: -100px;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(252,220,4,0.15) 0%, transparent 70%);
+}
+.page-hero-inner {
+  max-width: var(--grid);
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+.page-hero .sec-label { color: var(--mycu-yellow); }
+.page-hero .sec-label::before { background: var(--mycu-yellow); }
+.page-hero h1 {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: clamp(48px, 7vw, 88px);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--w);
+  max-width: 18ch;
+  margin-bottom: 24px;
+}
+.page-hero h1 em {
+  font-style: italic;
+  font-weight: 500;
+  color: var(--mycu-yellow);
+}
+.page-hero p {
+  font-size: 20px;
+  line-height: 1.5;
+  color: var(--g2);
+  max-width: 60ch;
+}
+
+/* Parent org */
+.parent-org {
+  background: var(--mycu-yellow);
+  padding: 64px 48px;
+}
+.po-inner {
+  max-width: var(--grid);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 48px;
+  align-items: center;
+}
+.po-inner .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--k);
+  margin-bottom: 12px;
+}
+.po-inner h2 {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 700;
+  font-size: 36px;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--k);
+}
+.po-inner p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--k);
+}
+@media (max-width: 880px) {
+  .po-inner { grid-template-columns: 1fr; gap: 24px; }
+}
+
+/* Mission */
+.mission-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  margin-top: 48px;
+}
+.mission-block h3 {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: 28px;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+.mission-block p {
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--g1);
+  margin-bottom: 16px;
+}
+@media (max-width: 880px) {
+  .mission-grid { grid-template-columns: 1fr; gap: 32px; }
+}
+
+/* Team */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  margin-top: 48px;
+  border-top: 2px solid var(--mycu-red);
+  border-left: 1px solid var(--rule);
+}
+.team-card {
+  padding: 32px 28px;
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  background: var(--w);
+  transition: background 0.2s;
+}
+.team-card:hover { background: var(--w2); }
+.team-avatar {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, var(--mycu-red) 0%, var(--mycu-orange) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 700;
+  font-size: 32px;
+  color: var(--w);
+  margin-bottom: 20px;
+  letter-spacing: -0.02em;
+}
+.team-name {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  letter-spacing: -0.02em;
+  color: var(--k);
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+.team-role {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mycu-red);
+  font-weight: 500;
+}
+@media (max-width: 880px) {
+  .team-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Values */
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 48px;
+}
+.value-card {
+  padding: 32px;
+  background: var(--w2);
+  border-left: 4px solid var(--mycu-red);
+}
+.value-card .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mycu-red);
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+.value-card h4 {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+.value-card p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--g1);
+}
+@media (max-width: 880px) {
+  .values-grid { grid-template-columns: 1fr; }
+}
+
+/* Timeline */
+.timeline {
+  margin-top: 48px;
+  position: relative;
+  padding-left: 40px;
+}
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--mycu-red);
+}
+.timeline-item {
+  position: relative;
+  padding-bottom: 40px;
+}
+.timeline-item::before {
+  content: "";
+  position: absolute;
+  left: -40px;
+  top: 4px;
+  width: 18px;
+  height: 18px;
+  background: var(--mycu-red);
+  border: 4px solid var(--w);
+  box-shadow: 0 0 0 2px var(--mycu-red);
+  border-radius: 50%;
+}
+.timeline-item .date {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mycu-red);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.timeline-item h4 {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+.timeline-item p {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--g1);
+  max-width: 60ch;
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="brand">
+      <img src="logo.jpg" alt="MYCU Logo" class="brand-logo">
+      <div class="brand-text">
+        <h1>Malaria Youth Champions <span>Uganda</span></h1>
+        <p>Makerere Chapter</p>
+      </div>
+    </a>
+    <button class="mobile-toggle" aria-label="Menu">☰</button>
+    <nav class="site-nav">
+      <a href="index.html">Home</a>
+      <a href="about.html" class="active">About</a>
+      <a href="projects.html">Projects</a>
+      <a href="contact.html">Contact</a>
+      <a href="donate.html" class="donate-btn">Donate</a>
+    </nav>
+  </div>
+</header>
+
+<section class="page-hero full-width">
+  <div class="page-hero-inner">
+    <div class="sec-label">About Us</div>
+    <h1>Youth-led. Data-driven. <em>Uncompromising.</em></h1>
+    <p>
+      We are students at Makerere University who believe malaria is a solvable problem —
+      and that the people closest to it should lead the fight.
+    </p>
+  </div>
+</section>
+
+<section class="parent-org full-width">
+  <div class="po-inner">
+    <div>
+      <div class="label">Parent Organization</div>
+      <h2>Malaria Youth Champions Uganda</h2>
+    </div>
+    <div>
+      <p>
+        The Makerere Chapter operates under <strong>Malaria Youth Champions Uganda (MYCU)</strong>,
+        a national youth-led network mobilizing young Ugandans against malaria. We are one of several
+        university chapters working in coordination across the country, sharing methodology, data, and impact.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-header">
+    <div class="sec-label">Our Mission</div>
+    <h2 class="sec-title">Why we <em>do this work.</em></h2>
+  </div>
+
+  <div class="mission-grid">
+    <div class="mission-block">
+      <h3>The problem</h3>
+      <p>
+        Malaria remains Uganda's leading cause of illness and death. Despite decades of intervention,
+        certain communities — particularly informal settlements in Kampala — continue to bear a
+        disproportionate burden. The reasons are knowable: net coverage gaps, poor drainage,
+        fragmented care-seeking, and a lack of granular local data to target interventions.
+      </p>
+      <p>
+        Most malaria programs operate at the district or national level. The street-by-street,
+        household-by-household reality is invisible to policymakers, and that's where solutions stall.
+      </p>
+    </div>
+    <div class="mission-block">
+      <h3>Our approach</h3>
+      <p>
+        We bring rigorous research methods to communities that are usually only "studied" — not
+        engaged. Our surveys, hazard mapping, and drug shop assessments are designed not just to
+        produce reports, but to enable action.
+      </p>
+      <p>
+        Every dataset we collect feeds into open, interactive tools that residents, NGOs, and policymakers
+        can use together. The Kasanvu Portal is our flagship example — a live system where data,
+        intervention planning, and community pledges all live in one place.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="grey full-width">
+  <div style="max-width: var(--grid); margin: 0 auto; padding: 80px 48px;">
+    <div class="sec-header">
+      <div class="sec-label">Our Values</div>
+      <h2 class="sec-title">What guides <em>every decision.</em></h2>
+    </div>
+
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="num">01</div>
+        <h4>Evidence over assumption</h4>
+        <p>
+          We don't act on what we think communities need. We collect the data, talk to residents,
+          map the hazards — and let the evidence direct our work.
+        </p>
+      </div>
+      <div class="value-card">
+        <div class="num">02</div>
+        <h4>Transparency by default</h4>
+        <p>
+          Our data, methods, and impact are public. Donors can see exactly where contributions go;
+          examiners can scrutinize our methodology; communities can hold us accountable.
+        </p>
+      </div>
+      <div class="value-card">
+        <div class="num">03</div>
+        <h4>Community ownership</h4>
+        <p>
+          The communities we work in aren't research subjects — they're partners. We build tools
+          that residents can use long after our team has moved on.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-header">
+    <div class="sec-label">Executive Team</div>
+    <h2 class="sec-title">The people <em>behind the work.</em></h2>
+    <p class="sec-deck">
+      Our leadership combines public health, engineering, and community organizing experience —
+      all united by the belief that young Ugandans can lead this fight.
+    </p>
+  </div>
+
+  <div class="team-grid">
+    <div class="team-card">
+      <div class="team-avatar">BS</div>
+      <div class="team-name">Bbosa Shariff</div>
+      <div class="team-role">Chairperson</div>
+    </div>
+    <div class="team-card">
+      <div class="team-avatar">AR</div>
+      <div class="team-name">Ainomuhangi Rinah</div>
+      <div class="team-role">Vice Chairperson</div>
+    </div>
+    <div class="team-card">
+      <div class="team-avatar">KR</div>
+      <div class="team-name">Kimuli Roderick</div>
+      <div class="team-role">Treasurer</div>
+    </div>
+    <div class="team-card">
+      <div class="team-avatar">LK</div>
+      <div class="team-name">Lubega Kassim</div>
+      <div class="team-role">Secretary</div>
+    </div>
+  </div>
+</section>
+
+<section class="grey full-width">
+  <div style="max-width: var(--grid); margin: 0 auto; padding: 80px 48px;">
+    <div class="sec-header">
+      <div class="sec-label">Our Journey</div>
+      <h2 class="sec-title">From <em>idea</em> to <em>action.</em></h2>
+    </div>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="date">2025 · Founding</div>
+        <h4>MYCU Makerere Chapter established</h4>
+        <p>
+          A small team of public health, engineering, and statistics students at Makerere University
+          come together with a shared frustration: malaria data exists, but it doesn't reach the
+          communities it describes. The chapter is founded under MYCU national.
+        </p>
+      </div>
+      <div class="timeline-item">
+        <div class="date">Early 2026</div>
+        <h4>Kasanvu pilot study launched</h4>
+        <p>
+          The team selects Kasanvu Zone in Namuwongo as the pilot community — one of Kampala's
+          highest-burden informal settlements. Methodology development, IRB approval, and enumerator
+          training begin.
+        </p>
+      </div>
+      <div class="timeline-item">
+        <div class="date">April 2026</div>
+        <h4>Field data collection completed</h4>
+        <p>
+          12 enumerators conduct 56 household surveys, 7 drug shop assessments, and document
+          157 GPS-tagged environmental hazards. All data captured via KoboCollect for transparency
+          and reproducibility.
+        </p>
+      </div>
+      <div class="timeline-item">
+        <div class="date">April 2026</div>
+        <h4>Kasanvu Portal goes live</h4>
+        <p>
+          The interactive platform launches publicly — combining the field data with live
+          simulator, intervention monitoring, and a pledge tracker. The first end-to-end MYCU
+          Makerere project is online.
+        </p>
+      </div>
+      <div class="timeline-item">
+        <div class="date">Looking ahead</div>
+        <h4>Expansion to additional communities</h4>
+        <p>
+          The methodology and platform are designed to be reproducible. Additional Kampala
+          communities are in scoping, with the goal of building a network of data-driven malaria
+          interventions across the city.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand">
+        <img src="logo.jpg" alt="MYCU">
+        <div class="footer-brand-text">
+          <h4>Malaria Youth Champions <span>Uganda</span></h4>
+          <p>Makerere Chapter · Founded 2025</p>
+        </div>
+      </div>
+      <p>
+        We are a youth-led organization at Makerere University working to eliminate malaria
+        in Uganda's most vulnerable communities through research, advocacy, and intervention.
+      </p>
+    </div>
+    <div>
+      <h5>Explore</h5>
+      <a href="index.html">Home</a>
+      <a href="about.html">About us</a>
+      <a href="projects.html">Projects</a>
+      <a href="donate.html">Donate</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div>
+      <h5>Get involved</h5>
+      <a href="donate.html">Make a pledge</a>
+      <a href="donate.html">Volunteer</a>
+      <a href="contact.html">Partner with us</a>
+      <a href="kasanvu/index.html">Kasanvu Portal</a>
+    </div>
+    <div>
+      <h5>Connect</h5>
+      <a href="mailto:makerereuniversity.mycuchapter@gmail.com">makerereuniversity.mycuchapter@gmail.com</a>
+      <a href="tel:+256757741020">+256 757 741 020</a>
+      <a href="https://twitter.com/MYCUMAK" target="_blank">@MYCUMAK on Twitter</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div>© 2026 MYCU Makerere · All rights reserved</div>
+    <div>Powered by Malaria Youth Champions Uganda</div>
+  </div>
+</footer>
+
+<script>
+// Mobile nav toggle
+document.addEventListener('DOMContentLoaded', () => {
+  const toggle = document.querySelector('.mobile-toggle');
+  const nav = document.querySelector('nav.site-nav');
+  if (toggle && nav) {
+    toggle.addEventListener('click', () => {
+      nav.classList.toggle('open');
+    });
+  }
+});
+
+</script>
+</body>
+</html>
