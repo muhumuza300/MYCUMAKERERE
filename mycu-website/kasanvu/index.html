@@ -24,6 +24,76 @@
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
+
+/* ── Scroll-reveal animations ───────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.65s cubic-bezier(.22,.68,0,1.2), transform 0.65s cubic-bezier(.22,.68,0,1.2);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal-left.visible { opacity: 1; transform: translateX(0); }
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+/* Stagger children inside a .stagger-parent */
+.stagger-parent > * {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.stagger-parent.visible > *:nth-child(1) { opacity:1; transform:translateY(0); transition-delay: 0.05s; }
+.stagger-parent.visible > *:nth-child(2) { opacity:1; transform:translateY(0); transition-delay: 0.12s; }
+.stagger-parent.visible > *:nth-child(3) { opacity:1; transform:translateY(0); transition-delay: 0.19s; }
+.stagger-parent.visible > *:nth-child(4) { opacity:1; transform:translateY(0); transition-delay: 0.26s; }
+.stagger-parent.visible > *:nth-child(5) { opacity:1; transform:translateY(0); transition-delay: 0.33s; }
+.stagger-parent.visible > *:nth-child(6) { opacity:1; transform:translateY(0); transition-delay: 0.40s; }
+.stagger-parent.visible > *:nth-child(7) { opacity:1; transform:translateY(0); transition-delay: 0.47s; }
+.stagger-parent.visible > *:nth-child(8) { opacity:1; transform:translateY(0); transition-delay: 0.54s; }
+.stagger-parent.visible > *:nth-child(n+9) { opacity:1; transform:translateY(0); transition-delay: 0.60s; }
+
+/* Stat counter pop */
+.hs-cell { transition: transform 0.3s ease; }
+.hs-cell:hover { transform: translateY(-4px); }
+
+/* Section separator fade line */
+section::after {
+  content: '';
+  display: block;
+  width: 48px;
+  height: 2px;
+  background: var(--red);
+  margin-top: 48px;
+  opacity: 0.25;
+}
+section.full::after, section.dark::after, section.dcta::after { display: none; }
+
+/* Photo tile lift on hover */
+.team-grid .tile, .gallery .tile {
+  transition: transform 0.3s cubic-bezier(.22,.68,0,1.2), box-shadow 0.3s ease;
+}
+.team-grid .tile:hover, .gallery .tile:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+}
+
+/* Nav link smooth underline grow */
+nav.snav a { transition: color 0.2s ease, border-bottom-color 0.2s ease; }
+
+/* Table row hover highlight */
+tr { transition: background 0.15s ease; }
+tr:hover { background: rgba(30,58,95,0.05); }
 body { background: var(--w); color: var(--k); font-family: 'Manrope', sans-serif; font-size: 14.5px; line-height: 1.55; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
 .tnum { font-variant-numeric: tabular-nums; }
 a { color: var(--red); text-decoration: none; }
@@ -243,14 +313,14 @@ footer.dft a { color: var(--yellow); }
 
 <nav class="snav">
   <ul>
-    <li><a href="#overview" class="nl active">Overview</a></li>
+    <li><a href="#team" class="nl active">Field Team</a></li>
+    <li><a href="#overview" class="nl">Overview</a></li>
     <li><a href="#map" class="nl">Risk Map</a></li>
     <li><a href="#findings" class="nl">Findings</a></li>
     <li><a href="#cases" class="nl">Cases</a></li>
     <li><a href="#evidence" class="nl">Evidence</a></li>
     <li><a href="#shops" class="nl">Drug Shops</a></li>
     <li><a href="#priorities" class="nl">Priorities</a></li>
-    <li><a href="#team" class="nl">Field Team</a></li>
   </ul>
 </nav>
 
@@ -259,7 +329,7 @@ footer.dft a { color: var(--yellow); }
     <div class="sec-num">Field Study · April 2026</div>
     <h2>Kasanvu by <em>the actual numbers.</em></h2>
     <p class="deck">An interactive system built on real Google Forms responses — 56 households, 7 drug shops, 30 GPS-tagged hazard photos in one of Kampala's highest-burden informal settlements.</p>
-    <div class="hero-stats">
+    <div class="hero-stats stagger-parent">
       <div class="hs-cell"><div class="v" id="stat-hh">56</div><div class="l">Households<br>surveyed</div></div>
       <div class="hs-cell"><div class="v" id="stat-shops">7</div><div class="l">Drug shops<br>mapped</div></div>
       <div class="hs-cell"><div class="v" id="stat-photos">30</div><div class="l">GPS hazard<br>sites</div></div>
@@ -389,7 +459,7 @@ footer.dft a { color: var(--yellow); }
     <div class="sec-num">Part 07 · About the Field Study</div>
     <h2 class="sec-title">The <em>team behind the data.</em></h2>
     <p class="sec-deck">This project was carried out by a team of students from the <strong>School of Built Environment, College of Engineering, Design, Art &amp; Technology (CEDAT), Makerere University</strong>, in collaboration with consultants from <strong>Coventry University, London</strong>.</p>
-    <div class="team-grid">
+    <div class="team-grid stagger-parent">
       <div class="tile"><img src="images/field-team/team_photo_after_outreach.jpg" alt="Field team after outreach"></div>
       <div class="tile"><img src="images/field-team/sensitization_about_malaria.jpg" alt="Community sensitization"></div>
       <div class="tile"><img src="images/field-team/Team_taking_a_photo_with_the_locals.jpg" alt="Team with locals"></div>
@@ -401,33 +471,33 @@ footer.dft a { color: var(--yellow); }
       <div class="tile"><img src="images/field-team/with-conventry-supervisor.jpg" alt="With Coventry supervisor"></div>
     </div>
 
-    <div style="margin-top:48px;display:grid;grid-template-columns:1fr 1fr;gap:40px;">
+    <div style="margin-top:48px;display:grid;grid-template-columns:1fr 1fr;gap:40px;" class="stagger-parent">
 
       <div>
         <h4 style="margin-bottom:10px;font-size:0.82em;letter-spacing:0.08em;text-transform:uppercase;color:#1e3a5f;border-bottom:2px solid #1e3a5f;padding-bottom:6px;">Makerere University Team · CEDAT</h4>
-        <p style="font-size:0.8em;color:#666;margin-bottom:10px;">Supervised by <strong>Dr. Ivan Bamweyana</strong><br>Department of Geomatics and Land Management</p>
+        <p style="font-size:0.82em;color:#222;margin-bottom:8px;">Supervised by <strong>Dr. Ivan Bamweyana</strong><br>Department of Geomatics and Land Management</p>
         <table style="width:100%;font-size:0.82em;border-collapse:collapse;">
-          <tr style="border-bottom:1px solid #e0e0e0;"><td style="padding:7px 10px 7px 0;font-weight:600;">Muhumuza Michael</td><td style="padding:7px 0;color:#666;">Project Manager</td></tr>
-          <tr style="border-bottom:1px solid #e0e0e0;"><td style="padding:7px 10px 7px 0;font-weight:600;">Mufumbiro Enock</td><td style="padding:7px 0;color:#666;">Technical Officer</td></tr>
-          <tr style="border-bottom:1px solid #e0e0e0;"><td style="padding:7px 10px 7px 0;font-weight:600;">Kakooza Wycliffe</td><td style="padding:7px 0;color:#666;">Technical Officer</td></tr>
-          <tr style="border-bottom:1px solid #e0e0e0;"><td style="padding:7px 10px 7px 0;font-weight:600;">Turinawe Francis</td><td style="padding:7px 0;color:#666;">Technical Officer</td></tr>
-          <tr style="border-bottom:1px solid #e0e0e0;"><td style="padding:7px 10px 7px 0;font-weight:600;">Nantegje Jennat</td><td style="padding:7px 0;color:#666;">Finance &amp; M&amp;E</td></tr>
-          <tr style="border-bottom:1px solid #e0e0e0;"><td style="padding:7px 10px 7px 0;font-weight:600;">Musiimenta Racheal</td><td style="padding:7px 0;color:#666;">Communications</td></tr>
-          <tr style="border-bottom:1px solid #e0e0e0;"><td style="padding:7px 10px 7px 0;font-weight:600;">Apili Joanne</td><td style="padding:7px 0;color:#666;">Human Resources</td></tr>
-          <tr><td style="padding:7px 10px 7px 0;font-weight:600;">Tumwesige Solomon</td><td style="padding:7px 0;color:#666;">Risk &amp; Quality Assurance</td></tr>
+          <tr style="border-bottom:1px solid #e0e0e0;"><td style="padding:7px 10px 7px 0;font-weight:700;color:#111;">Muhumuza Michael</td><td style="padding:7px 0;color:#333;font-weight:500;">Project Manager</td></tr>
+          <tr style="border-bottom:1px solid #e0e0e0;"><td style="padding:7px 10px 7px 0;font-weight:700;color:#111;">Mufumbiro Enock</td><td style="padding:7px 0;color:#333;font-weight:500;">Technical Officer</td></tr>
+          <tr style="border-bottom:1px solid #e0e0e0;"><td style="padding:7px 10px 7px 0;font-weight:700;color:#111;">Kakooza Wycliffe</td><td style="padding:7px 0;color:#333;font-weight:500;">Technical Officer</td></tr>
+          <tr style="border-bottom:1px solid #e0e0e0;"><td style="padding:7px 10px 7px 0;font-weight:700;color:#111;">Turinawe Francis</td><td style="padding:7px 0;color:#333;font-weight:500;">Technical Officer</td></tr>
+          <tr style="border-bottom:1px solid #e0e0e0;"><td style="padding:7px 10px 7px 0;font-weight:700;color:#111;">Nantegje Jennat</td><td style="padding:7px 0;color:#333;font-weight:500;">Finance &amp; M&amp;E</td></tr>
+          <tr style="border-bottom:1px solid #e0e0e0;"><td style="padding:7px 10px 7px 0;font-weight:700;color:#111;">Musiimenta Racheal</td><td style="padding:7px 0;color:#333;font-weight:500;">Communications</td></tr>
+          <tr style="border-bottom:1px solid #e0e0e0;"><td style="padding:7px 10px 7px 0;font-weight:700;color:#111;">Apili Joanne</td><td style="padding:7px 0;color:#333;font-weight:500;">Human Resources</td></tr>
+          <tr><td style="padding:7px 10px 7px 0;font-weight:700;color:#111;">Tumwesige Solomon</td><td style="padding:7px 0;color:#333;font-weight:500;">Risk &amp; Quality Assurance</td></tr>
         </table>
       </div>
 
       <div>
         <h4 style="margin-bottom:10px;font-size:0.82em;letter-spacing:0.08em;text-transform:uppercase;color:#1e3a5f;border-bottom:2px solid #1e3a5f;padding-bottom:6px;">Coventry University Consultants · London</h4>
-        <p style="font-size:0.8em;color:#666;margin-bottom:10px;">Supervised by <strong>Dr. Stella Nalwanga</strong></p>
+        <p style="font-size:0.8em;color:#222;margin-bottom:10px;">Supervised by <strong>Dr. Stella Nalwanga</strong></p>
         <table style="width:100%;font-size:0.82em;border-collapse:collapse;">
-          <tr style="border-bottom:1px solid #e0e0e0;"><td style="padding:7px 10px 7px 0;font-weight:600;">Aditi Parakh</td><td style="padding:7px 0;color:#666;">Consultant</td></tr>
-          <tr><td style="padding:7px 10px 7px 0;font-weight:600;">Banshita Sahu</td><td style="padding:7px 0;color:#666;">Consultant</td></tr>
+          <tr style="border-bottom:1px solid #e0e0e0;"><td style="padding:7px 10px 7px 0;font-weight:700;color:#111;">Aditi Parakh</td><td style="padding:7px 0;color:#333;font-weight:500;">Consultant</td></tr>
+          <tr><td style="padding:7px 10px 7px 0;font-weight:700;color:#111;">Banshita Sahu</td><td style="padding:7px 0;color:#333;font-weight:500;">Consultant</td></tr>
         </table>
 
         <h4 style="margin-top:32px;margin-bottom:10px;font-size:0.82em;letter-spacing:0.08em;text-transform:uppercase;color:#1e3a5f;border-bottom:2px solid #1e3a5f;padding-bottom:6px;">Acknowledgments</h4>
-        <p style="font-size:0.82em;color:#666;line-height:1.7;">
+        <p style="font-size:0.82em;color:#222;line-height:1.7;font-weight:500;">
           This field study was carried out in partnership with <strong>Malaria Youth Champions Uganda</strong> as the project client, and with the active participation of the <strong>Makerere MYCU Club</strong> during field activities and community outreach.<br><br>
           Special thanks to the residents of Kasanvu, the LC1 community leadership, Village Health Teams, and the staff of <strong>Kisugu Health Centre III</strong> for their cooperation and support throughout the study.
         </p>
@@ -887,6 +957,26 @@ window.addEventListener('DOMContentLoaded', () => {
   try { renderShops(); } catch (e) { console.error('Shops error:', e); }
   try { renderPriorities(); } catch (e) { console.error('Priorities error:', e); }
   try { initScrollSpy(); } catch (e) { console.error('Scrollspy error:', e); }
+
+  // Scroll to Field Team section on first load
+  const teamSection = document.getElementById('team');
+  if (teamSection) {
+    setTimeout(() => {
+      teamSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 300);
+  }
+
+  // Scroll-reveal: observe all .reveal, .reveal-left, .reveal-right, .stagger-parent
+  const revealEls = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .stagger-parent');
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target); // fire once
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  revealEls.forEach(el => revealObserver.observe(el));
 });
 </script>
 
